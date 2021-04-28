@@ -4,74 +4,84 @@
 #include <stdexcept>
 #include "NumberWithUnits.hpp"
 using namespace std;
+const double Circel = 0.001;
 
 namespace ariel{
-void NumberWithUnits::read_units(ifstream& file){
+static map<string,map<string, double>> theMap;
+void inMyMap(const string &left, const string &right){
+        for (auto &map: theMap[right])
+        {
+            double temp= theMap[left][right] * map.second;
+            theMap[left][map.first]=temp;// 
+            theMap[map.first][left]=1/temp;// compare the value
+        }
+}
+ void NumberWithUnits::read_units(ifstream& file){
        stringstream getDataFromFile;
-        getDataFromFile = stringstream();
-        int in,in1;
-		string line;
-		getline(file, line);
+        //getDataFromFile = stringstream();
+        double in,in1;
+		char s;// keeps "="
+		//getline(file, line);
         string left;
         string right;
         //string delimiter = "=";
        // left = line.substr(0, line.find(delimiter)); 
         //right = line.substr(line.find(delimiter)+2,line.length());
-		getDataFromFile = stringstream(line);
-		getDataFromFile>>in>>left>>in1>>right;
-        Key p1(in,left);
-        Key p2(in1,right);
-        theMap.insert(p1,p2);   
-            
+		while (file >> in >> left >> s >> in1 >> right)
+        {
+            theMap[left][right]= in1;
+            theMap[left][right]= 1/in1;
+            inMyMap(left, right);
+            inMyMap(left, right);
+        }
+
 }
 //function to compare type of two elements.
-bool NumberWithUnits::CompareTypes(NumberWithUnits& a, NumberWithUnits& b){
-       for (const auto &entry: theMap)
-    {   auto key_pair = entry.first;
-        auto key_pair1 = entry.second;
-
-        //theMap.con
-        std::cout << "{" << key_pair.first << "," << key_pair.second << "}, "
-                  << key_pair1.first << "," << key_pair1.second << std::endl;
-    }
-        // ton -> kg -> g , km -> m -> cm , usd -> ils , hour -> min -> sec.
-        
-   return false;
-}
+double CompareTypes(double param, const string &left, const string &right){
+  if(left==right){
+            return param;
+        }
+        if(theMap.at(left).at(right)==0){
+            throw invalid_argument{"This compare isn't match (:CompareTypes)"};
+        }
+        return param*theMap.at(left).at(right);
+         };
 
 ostream& operator<<(ostream& output, const NumberWithUnits& other){
     return output << other.parameter << " [" << other.type << "] " << endl;
 }
-void operator>>(istringstream&input, NumberWithUnits& a){
-    double val;
-    input >> val; 
-    char c;
-    input >> c; //trash the "["
-    string str;
-    input>> str;
-    a.parameter=val;// get my paramter
-    a.type=str;//get my type
-}
-
-NumberWithUnits operator+(NumberWithUnits& a, NumberWithUnits& b){
-    NumberWithUnits temp {0, "km"};
-   if(a.type==b.type){
-      temp.parameter=a.parameter+b.parameter;
-      temp.type=a.type;
-   }
-   else{
-        if(){
-
+std::istream &operator>>(std::istream &is, NumberWithUnits &co){
+        string str;
+       // is >> co.num >> str>> co.unit;
+        //return is;
+        double temp=0; 
+        char c=']';
+        is >> temp;
+        is >> c;
+        while (c!=']')
+        {
+            if(c !='['){
+                str.insert(str.end(),c);
+            }
+            is>>c;
         }
-        else{
-        //throw out_of_range("You cant Subb diffrent types: "+a.type+" , "+b.type);  
-        }
-   }
-   return temp;
-}
+        if(theMap[str].empty()){
+            throw invalid_argument{"Doesn't Exist"};
+        };
+        co.parameter=temp;
+        co.type=str;
+        return is;
+    }
 
+NumberWithUnits operator+(NumberWithUnits& sub){
+    return NumberWithUnits(sub.parameter, sub.type);
+}
+NumberWithUnits operator+(NumberWithUnits& a,NumberWithUnits& b){
+    double sub= CompareTypes(b.parameter, b.type, a.type);
+        return NumberWithUnits(a.parameter+sub,a.type);
+}
 NumberWithUnits& NumberWithUnits::operator+=(const NumberWithUnits& other){
-       this->parameter+=other.parameter;
+         this->parameter+= CompareTypes(other.parameter, other.type, this->type);
     return *this;
 }
 NumberWithUnits& NumberWithUnits::operator-=(NumberWithUnits& other){
@@ -79,99 +89,65 @@ NumberWithUnits& NumberWithUnits::operator-=(NumberWithUnits& other){
     return *this;
 }
 
-NumberWithUnits NumberWithUnits:: operator-(){
-        NumberWithUnits temp = *this;
-        temp.parameter = -temp.parameter;
-        
-    return temp;
+NumberWithUnits operator-(const NumberWithUnits& min){
+        return NumberWithUnits(min.parameter*(-1), min.type);
 }
  
-NumberWithUnits operator-(NumberWithUnits& a, NumberWithUnits& b){
-       NumberWithUnits temp {0, "km"};
-       temp.parameter=a.parameter-b.parameter;
-       temp.type=a.type;
-    return temp;
+NumberWithUnits operator-(const NumberWithUnits& a,const NumberWithUnits& b){
+         double checkType= CompareTypes(b.parameter, b.type, a.type);
+        return NumberWithUnits(a.parameter+checkType,a.type);
 }
 
-NumberWithUnits& operator*(NumberWithUnits& a, double x){
-     a.parameter*= x;
-    return a;
-}
-
-NumberWithUnits& operator*(double x, NumberWithUnits& a){
-    a.parameter*= x;
-    return a;
-}
-
-bool operator==(const NumberWithUnits& a, const NumberWithUnits& b){
-     if(a.type==b.type&&a.parameter==b.parameter){
-         return true;
-     }
-     else{
-         //throw out_of_range("You cant compare diffrent types: "+a.type+" , "+b.type);
-         return false;
-     }
-}
-
-bool operator!=(NumberWithUnits& a, NumberWithUnits& b){
-     if(a.type!=b.type){
-         return true;
-     }
-     else{
-         return false;
-     }
-}
-
-bool operator<(NumberWithUnits& a, NumberWithUnits& b){
-    if(b.parameter>a.parameter){
-        return true;
+NumberWithUnits operator*(const NumberWithUnits &a, const double n){
+        return NumberWithUnits(.num*n, num1.unit);
     }
 
-    else{
-        return false;
+    NumberWithUnits operator*(const double n, const NumberWithUnits &a){
+        return NumberWithUnits(a.parameter*n, a.type);
     }
-}
-bool operator>(NumberWithUnits& a, NumberWithUnits& b){
-    if(b.parameter>a.parameter){
-        return true;
+
+bool NumberWithUnits::operator>(const NumberWithUnits &temp) const
+    {
+        return (this->parameter>CompareTypes(temp.parameter, temp.type, this->type));
     }
-    else{
-        return false;
+
+    bool NumberWithUnits::operator>=(const NumberWithUnits &temp) const{
+        return (this->parameter>=CompareTypes(temp.parameter, temp.type, this->type));
     }
-}
-bool operator<=(NumberWithUnits& a, NumberWithUnits& b){
-    if(b.parameter<=a.parameter){
-        return true;
+
+    bool NumberWithUnits::operator<(const NumberWithUnits &temp) const{
+        return (this->parameter<CompareTypes(temp.parameter, temp.type, this->type));
     }
-    else{
-        return false;
+
+    bool NumberWithUnits::operator<=(const NumberWithUnits &temp) const{
+        return (this->parameter<=CompareTypes(temp.parameter, temp.type, this->type));
     }
-}
-bool operator>=(NumberWithUnits& a, NumberWithUnits& b){
-    if(b.parameter>=a.parameter){
-        return true;
+
+    bool NumberWithUnits::operator==(const NumberWithUnits &temp) const{
+        return (abs(this->parameter-CompareTypes(temp.parameter, temp.type, this->type))<= Circel);
     }
-    else{
-        return false;
-    }
-}
+
+    bool NumberWithUnits::operator!=(const NumberWithUnits &temp) const
+    {
+        return !(*this==temp);
+    }   
 
 // Postfix operator
 NumberWithUnits& NumberWithUnits::operator++(){
+     ++(this->parameter);
     return *this;
 }
 NumberWithUnits& NumberWithUnits::operator--(){
-    return *this;
+    --(this->parameter);
+    return *this; 
 }
 
 // Prefix operator
-NumberWithUnits NumberWithUnits::operator++(int temp){
-    NumberWithUnits a {0, "km"};
-         return a;
+NumberWithUnits NumberWithUnits::operator++(int){
+    return NumberWithUnits(this->parameter++, this->type);
 }          
-NumberWithUnits NumberWithUnits::operator--(int temp){
-    NumberWithUnits a {0, "km"};
-         return a;
+NumberWithUnits NumberWithUnits::operator--(int){
+    return NumberWithUnits(this->parameter--, this->type);
 }
 
 
