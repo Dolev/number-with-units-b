@@ -4,9 +4,10 @@
 #include <stdexcept>
 #include "NumberWithUnits.hpp"
 using namespace std;
-const double Circel = 0.001;
+
 
 namespace ariel{
+    
 static map<string,map<string, double>> theMap;
  NumberWithUnits:: NumberWithUnits(double number, const string &Type){
         theMap.at(Type);
@@ -117,7 +118,7 @@ bool NumberWithUnits::operator>(const NumberWithUnits &temp) const
     bool NumberWithUnits::operator<=(const NumberWithUnits &temp) const{
         return (this->parameter<=CompareTypes(temp.parameter, temp.type, this->type));
     }
-
+    const double Circel = 0.001;
     bool NumberWithUnits::operator==(const NumberWithUnits &temp) const{
         return (abs(this->parameter-CompareTypes(temp.parameter, temp.type, this->type))<= Circel);
     }
