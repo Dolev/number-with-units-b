@@ -15,7 +15,7 @@ namespace ariel{
         //void inMyMap(const string &left, const string &right);
         public:
              // Constructors:
-         NumberWithUnits(double num , const string &s);
+         NumberWithUnits(double num , const string &Type);
             //~NumberWithUnits(){};
         double getPa() const{
             return parameter;
@@ -38,7 +38,7 @@ namespace ariel{
             NumberWithUnits& operator-=(const NumberWithUnits &temp);
             //multi - function 
             friend NumberWithUnits operator*(const NumberWithUnits &a, const double n);   //like i watched in Kern Kalif videos
-            friend NumberWithUnits operator*(double x, const NumberWithUnits& a);
+            friend NumberWithUnits operator*(double n, const NumberWithUnits& a);
             //Comparation functions -(bool functions)-true/false
             bool operator>(const NumberWithUnits &temp) const;
             bool operator>=(const NumberWithUnits &temp) const;
