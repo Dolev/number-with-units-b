@@ -8,6 +8,11 @@ const double Circel = 0.001;
 
 namespace ariel{
 static map<string,map<string, double>> theMap;
+ NumberWithUnits:: NumberWithUnits(double number, const string &Type){
+        theMap.at(Type);
+        this->parameter=number;
+        this->type=Type;
+    }
 void inMyMap(const string &left, const string &right){
         for (auto &map: theMap[right])
         {
@@ -17,22 +22,15 @@ void inMyMap(const string &left, const string &right){
         }
 }
  void NumberWithUnits::read_units(ifstream& file){
-       stringstream getDataFromFile;
-        //getDataFromFile = stringstream();
-        double in,in1;
-		char s;// keeps "="
-		//getline(file, line);
-        string left;
-        string right;
-        //string delimiter = "=";
-       // left = line.substr(0, line.find(delimiter)); 
-        //right = line.substr(line.find(delimiter)+2,line.length());
-		while (file >> in >> left >> s >> in1 >> right)
+        string left, right;
+        string str;
+        double in=0, in2=0;
+        while (file >> in >> left >> str >> in2 >> right)
         {
-            theMap[left][right]= in1;
-            theMap[left][right]= 1/in1;
+            theMap[left][right]= in2;
+            theMap[right][left]= in/in2;
             inMyMap(left, right);
-            inMyMap(left, right);
+            inMyMap(right, left);
         }
 
 }
@@ -48,12 +46,10 @@ double CompareTypes(double param, const string &left, const string &right){
          };
 
 ostream& operator<<(ostream& output, const NumberWithUnits& other){
-    return output << other.parameter << " [" << other.type << "] " << endl;
+    return output << other.parameter << "[" << other.type << "] " << endl;
 }
-std::istream &operator>>(std::istream &is, NumberWithUnits &co){
+istream& operator>>(istream &is, NumberWithUnits &co){
         string str;
-       // is >> co.num >> str>> co.unit;
-        //return is;
         double temp=0; 
         char c=']';
         is >> temp;
@@ -73,20 +69,16 @@ std::istream &operator>>(std::istream &is, NumberWithUnits &co){
         return is;
     }
 
-NumberWithUnits operator+(NumberWithUnits& sub){
+NumberWithUnits operator+(const NumberWithUnits& sub){
     return NumberWithUnits(sub.parameter, sub.type);
 }
-NumberWithUnits operator+(NumberWithUnits& a,NumberWithUnits& b){
+NumberWithUnits operator+(const NumberWithUnits& a,const NumberWithUnits& b){
     double sub= CompareTypes(b.parameter, b.type, a.type);
         return NumberWithUnits(a.parameter+sub,a.type);
 }
 NumberWithUnits& NumberWithUnits::operator+=(const NumberWithUnits& other){
          this->parameter+= CompareTypes(other.parameter, other.type, this->type);
-    return *this;
-}
-NumberWithUnits& NumberWithUnits::operator-=(NumberWithUnits& other){
-       this->parameter-=other.parameter;
-    return *this;
+        return *this;
 }
 
 NumberWithUnits operator-(const NumberWithUnits& min){
@@ -95,14 +87,17 @@ NumberWithUnits operator-(const NumberWithUnits& min){
  
 NumberWithUnits operator-(const NumberWithUnits& a,const NumberWithUnits& b){
          double checkType= CompareTypes(b.parameter, b.type, a.type);
-        return NumberWithUnits(a.parameter+checkType,a.type);
+        return NumberWithUnits(a.parameter-checkType,a.type);
 }
-
+NumberWithUnits& NumberWithUnits::operator-=(const NumberWithUnits &temp){
+        this->parameter-= CompareTypes(temp.parameter, temp.type, this->type);
+        return *this;
+}
 NumberWithUnits operator*(const NumberWithUnits &a, const double n){
-        return NumberWithUnits(.num*n, num1.unit);
+        return NumberWithUnits(a.parameter*n, a.type);
     }
 
-    NumberWithUnits operator*(const double n, const NumberWithUnits &a){
+NumberWithUnits operator*(const double n, const NumberWithUnits &a){
         return NumberWithUnits(a.parameter*n, a.type);
     }
 
