@@ -53,7 +53,7 @@ namespace ariel{
 
             friend ostream& operator<<(ostream& output, const NumberWithUnits& other);
 
-            friend istream& operator>>(istream &is, NumberWithUnits &co);
+            friend istream& operator>>(istream &input, NumberWithUnits &co);
 
     };  
     // map<string,map<string, double>> NumberWithUnits::theMap;
