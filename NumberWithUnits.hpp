@@ -9,40 +9,43 @@ using namespace std;
 namespace ariel{
 
     class NumberWithUnits{
-        double parameter;
-        string type;
-        typedef pair<int,string> Key;
-        static map<pair<int,string>,pair<int,string>> theMap;
-
+        double parameter; string type;
+        
+        //static map<string,map<string, double>> theMap;
+        //void inMyMap(const string &left, const string &right);
         public:
              // Constructors:
-            NumberWithUnits(double num , string s):parameter(num),type(s){
-                
-            };
-            ~NumberWithUnits(){};
+         NumberWithUnits(double num , const string &s);
+            //~NumberWithUnits(){};
+        double getPa() const{
+            return parameter;
+        }
+        string getType() const{
+            return type;
+        }
             // Functions: 
             static void read_units(ifstream& file);
-            bool CompareTypes(NumberWithUnits& a, NumberWithUnits& b);
-            //Math Operator
-            NumberWithUnits operator-();//unary
-             NumberWithUnits& operator+(){return *this;};//unary
-            friend NumberWithUnits operator+(NumberWithUnits& a,NumberWithUnits& b);
-            friend NumberWithUnits operator-(NumberWithUnits& a,NumberWithUnits& b);
-
+            //double CompareTypes(NumberWithUnits& a, NumberWithUnits& b);
             
-            NumberWithUnits& operator+=(const NumberWithUnits& other);
-            NumberWithUnits& operator-=(NumberWithUnits& other);
-            //multi - function 
-            friend NumberWithUnits& operator*(NumberWithUnits& a, double x);    //like i watched in Kern Kalif videos
-            friend NumberWithUnits& operator*(double x, NumberWithUnits& a);
-            //Comparation functions -(bool functions)-
-            friend bool operator>(NumberWithUnits& a, NumberWithUnits& b);
-            friend bool operator<(NumberWithUnits& a, NumberWithUnits& b);
-            friend bool operator>=(NumberWithUnits& a, NumberWithUnits& b);
-            friend bool operator<=(NumberWithUnits& a, NumberWithUnits& b);
-            friend bool operator!=(NumberWithUnits& a, NumberWithUnits& b);
-            friend bool operator==(const NumberWithUnits& a, const NumberWithUnits& b);
+            //Math Operator
+            friend NumberWithUnits operator+(const NumberWithUnits& sub);//unary
+            friend NumberWithUnits operator+(const NumberWithUnits& a,const NumberWithUnits& b);
+            
+            friend NumberWithUnits operator-(const NumberWithUnits &min);
+            friend NumberWithUnits operator-(const NumberWithUnits &a, const NumberWithUnits &b);
 
+            NumberWithUnits& operator+=(const NumberWithUnits& other);
+            NumberWithUnits& operator-=(const NumberWithUnits &temp);
+            //multi - function 
+            friend NumberWithUnits operator*(const NumberWithUnits &a, const double n);   //like i watched in Kern Kalif videos
+            friend NumberWithUnits operator*(double x, const NumberWithUnits& a);
+            //Comparation functions -(bool functions)-true/false
+            bool operator>(const NumberWithUnits &temp) const;
+            bool operator>=(const NumberWithUnits &temp) const;
+            bool operator<(const NumberWithUnits &temp) const;
+            bool operator<=(const NumberWithUnits &temp) const;
+            bool operator==(const NumberWithUnits &temp) const;
+            bool operator!=(const NumberWithUnits &temp) const;
             NumberWithUnits& operator++();
             NumberWithUnits operator++(int temp);
             NumberWithUnits& operator--();
@@ -50,7 +53,8 @@ namespace ariel{
 
             friend ostream& operator<<(ostream& output, const NumberWithUnits& other);
 
-            friend void operator>>(istringstream& input, NumberWithUnits& a);
+            friend istream& operator>>(istream &is, NumberWithUnits &co);
 
-    };
+    };  
+    // map<string,map<string, double>> NumberWithUnits::theMap;
 }
