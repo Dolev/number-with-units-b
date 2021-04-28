@@ -46,7 +46,7 @@ double CompareTypes(double param, const string &left, const string &right){
          };
 
 ostream& operator<<(ostream& output, const NumberWithUnits& other){
-    return output << other.parameter << "[" << other.type << "] " << endl;
+    return output << other.parameter << "[" << other.type << "]" << endl;
 }
 istream& operator>>(istream &is, NumberWithUnits &co){
         string str;
