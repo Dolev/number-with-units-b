@@ -46,27 +46,27 @@ double CompareTypes(double param, const string &left, const string &right){
          };
 
 ostream& operator<<(ostream& output, const NumberWithUnits& other){
-    return output << other.parameter << "[" << other.type << "]" << endl;
+    return output << other.parameter << "[" << other.type << "]";
 }
-istream& operator>>(istream &is, NumberWithUnits &co){
+istream& operator>>(istream &input, NumberWithUnits &co){
         string str;
         double temp=0; 
         char c=']';
-        is >> temp;
-        is >> c;
+        input >> temp;
+        input >> c;
         while (c!=']')
         {
             if(c !='['){
                 str.insert(str.end(),c);
             }
-            is>>c;
+            input>>c;
         }
         if(theMap[str].empty()){
             throw invalid_argument{"Doesn't Exist"};
         };
         co.parameter=temp;
         co.type=str;
-        return is;
+        return input;
     }
 
 NumberWithUnits operator+(const NumberWithUnits& sub){
